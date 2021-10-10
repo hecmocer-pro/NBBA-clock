@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NBBA Clock</title>
+</head>
+<body>
+
+  <style>
+    body {
+      margin: 0;
+    }
+
+    .page[hidden] {
+      display: none;
+    }
+
+    .page {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+    }
+
+    .page1-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page1-form-group {
+      margin: 8px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .team-turn {
+      width: 50vw;
+      height: 100vh;
+      position: absolute;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+
+      border: solid 1px black;
+      background: #000;
+      padding: 0;
+
+      z-index: 5;
+    }
+
+    .team-turn:nth-of-type(1) {
+      left: 0;
+      top: 0;
+    }
+
+    .team-turn:nth-of-type(2) {
+      left: 50vw;
+      top: 0;
+    }
+
+    .pause-turn-container {
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      bottom: 0;
+    }
+
+    .pause-turn {
+      width: 200px;
+      height: 200px;
+      z-index: 15;
+    }
+
+    .team-logo {
+      position: absolute;
+    }
+
+    .team1-turn .team-logo {
+      transform: skew(0deg, -20deg);
+    }
+
+    .team2-turn .team-logo {
+      transform: skew(0deg, 20deg);
+    }
+
+    .team-turn-content, .score, .team-turn-turn {
+      color: white;
+      font-size: 64px;
+      z-index: 5;
+    }
+
+    .team-turn-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      background: rgba(0,0,0,0.4);
+    }
+
+    .team-turn-turn {
+      position: absolute;
+      bottom: 0;
+    }
+
+    .score {
+      position: absolute;
+      top: 0;
+      z-index: 10;
+      pointer-events: none;
+      width: 100%;
+
+      display: flex;
+      justify-content: center;
+    }
+
+    .score div:nth-child(1), .score div:nth-child(3) {
+      width: 45%;
+    }
+
+    .pause-turn {
+
+    }
+
+    .team-score-name {
+      width: 40%;
+    }
+
+    .team1-score-name {
+      text-align: right;
+    }
+
+    .teams-score {
+      width: 20%;
+      text-align: center;
+    }
+
+    .page3 {
+      z-index: 20;
+    }
+
+    .team-turn-time {
+      font-size: 80px;
+    }
+  </style>
+
+  <div class="page page1" id="page1" hidden>
+    <form id="form" class="page1-form" action="" onsubmit="javascript:initPage2()">
+      <div class="page1-form-group">
+        <label for="team1">Equipo 1 — local</label>
+        <select name="team1" id="team1" required>
+          <option value="0">N/A</option>
+          <option value="1">Equipo 1</option>
+          <option value="2">Equipo 2</option>
+          <option value="3">Equipo 3</option>
+          <option value="4">Equipo 4</option>
+          <option value="5">Equipo 5</option>
+          <option value="6">Equipo 6</option>
+          <option value="7">Equipo 7</option>
+          <option value="8">Equipo 8</option>
+        </select>
+      </div>
+      <div class="page1-form-group">
+        <label for="team2">Equipo 2 — visitante</label>
+        <select name="team2" id="team2" required>
+          <option value="0">N/A</option>
+          <option value="1">Equipo 1</option>
+          <option value="2">Equipo 2</option>
+          <option value="3">Equipo 3</option>
+          <option value="4">Equipo 4</option>
+          <option value="5">Equipo 5</option>
+          <option value="6">Equipo 6</option>
+          <option value="7">Equipo 7</option>
+          <option value="8">Equipo 8</option>
+        </select>
+      </div>
+      <div class="page1-form-group">
+        <label for="">Turnos</label>
+        <input name="turns" type="text" value="6" required>
+      </div>
+      <div class="page1-form-group">
+        <label for="">Tiempo por turno</label>
+        <input name="time" type="text" value="150" required>
+      </div>
+      <div class="page1-form-group">
+        <label for="">Delay</label>
+        <input name="delay" type="text" value="1" required>
+      </div>
+      <div class="page1-form-group">
+        <button type="submit">Play match!</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="page page2" id="page2" hidden>
+    <div class="score">
+      <div class="team1-score-name team-score-name">Orkadianoz</div>
+      <div class="teams-score">
+        <span>2</span>
+        <span>–</span>
+        <span>0</span>
+      </div>
+      <div class="team2-score-name team-score-name">Angry Stitches</div>
+    </div>
+    <button class="team-turn team1-turn" id="team1-turn" onclick="turnTeam1()">
+      <img src="team1.jpeg" class="team-logo" alt="" width="100%">
+      <div class="team-turn-content">
+        <div class="team-turn-time">1:59</div>
+      </div>
+      <div class="team-turn-turn">Turno: 1</div>
+    </button>
+    <button class="team-turn team2-turn" id="team1-turn" onclick="turnTeam2()">
+      <img src="team2.jpeg" class="team-logo" alt="" width="100%">
+      <div class="team-turn-content">
+        <div class="team-turn-time">2:30</div>
+      </div>
+      <div class="team-turn-turn">Turno: 2</div>
+    </button>
+    <div class="pause-turn-container">
+      <button class="pause-turn" id="pause-turn" onclick="initPage3()">Pause</button>
+    </div>
+  </div>
+
+  <div class="page page3" id="page3" hidden>
+    Pause overlay
+    <button onclick="keepGoing()">Continue</button>
+    <button onclick="reset()">New Game</button>
+  </div>
+
+  <script>
+    console.log('Hello!')
+
+    const pages = [
+      document.querySelector('#page1'),
+      document.querySelector('#page2'),
+      document.querySelector('#page3'),
+    ];
+
+    const init = () => {
+      const urlSearchParams = new URLSearchParams(window.location.search);
+      const params = Object.fromEntries(urlSearchParams.entries());
+
+      if (params?.team1 !== null && params?.team1 !== undefined) {
+        initPage2()
+      } else {
+        initPage1()
+      }
+    }
+
+    function initPage1() {
+      pages[0].removeAttribute('hidden')
+      pages[1].setAttribute('hidden', true)
+      pages[2].setAttribute('hidden', true)
+    }
+
+    function initPage2() {
+      pages[0].setAttribute('hidden', true)
+      pages[1].removeAttribute('hidden')
+      pages[2].setAttribute('hidden', true)
+    }
+
+    function initPage3() {
+      pages[0].setAttribute('hidden', true)
+      // pages[1].setAttribute('hidden', true)
+      pages[2].removeAttribute('hidden')
+    }
+
+    function reset(){
+      window.location.href = '/'
+    }
+
+    function keepGoing() {
+      pages[2].setAttribute('hidden', true)
+    }
+
+    function turnTeam1() {
+
+    }
+    function turnTeam2() {
+
+    }
+
+    init();
+
+  </script>
+
+</body>
+</html>
