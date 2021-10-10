@@ -149,11 +149,12 @@
 
     .team-turn-time {
       font-size: 80px;
+      background: rgba(0,0,0,0.8)
     }
   </style>
 
   <div class="page page1" id="page1" hidden>
-    <form id="form" class="page1-form" action="" onsubmit="javascript:initPage2()">
+    <form id="form" class="page1-form" action="">
       <div class="page1-form-group">
         <label for="team1">Equipo 1 — local</label>
         <select name="team1" id="team1" required>
@@ -184,7 +185,7 @@
       </div>
       <div class="page1-form-group">
         <label for="">Turnos</label>
-        <input name="turns" type="text" value="6" required>
+        <input name="turns" type="text" value="6" required disabled>
       </div>
       <div class="page1-form-group">
         <label for="">Tiempo por turno</label>
@@ -202,30 +203,30 @@
 
   <div class="page page2" id="page2" hidden>
     <div class="score">
-      <div class="team1-score-name team-score-name">Orkadianoz</div>
+      <div class="team1-score-name team-score-name" id="team1-name">Orkadianoz</div>
       <div class="teams-score">
         <span>2</span>
         <span>–</span>
         <span>0</span>
       </div>
-      <div class="team2-score-name team-score-name">Angry Stitches</div>
+      <div class="team2-score-name team-score-name" id="team2-name">Angry Stitches</div>
     </div>
-    <button class="team-turn team1-turn" id="team1-turn" onclick="turnTeam1()">
-      <img src="team1.jpeg" class="team-logo" alt="" width="100%">
+    <button class="team-turn team1-turn" id="team1-turn" onclick="turnForTeam1()">
+      <img src="team1.jpeg" id="team1-logo" class="team-logo" alt="" width="100%">
       <div class="team-turn-content">
-        <div class="team-turn-time">1:59</div>
+        <div class="team-turn-time" id="team1-turn-time">Empezar</div>
       </div>
-      <div class="team-turn-turn">Turno: 1</div>
+      <div class="team-turn-turn">Turno: <span id="team1-turn-turn">0</span></div>
     </button>
-    <button class="team-turn team2-turn" id="team1-turn" onclick="turnTeam2()">
-      <img src="team2.jpeg" class="team-logo" alt="" width="100%">
+    <button class="team-turn team2-turn" id="team1-turn" onclick="turnForTeam2()">
+      <img src="team2.jpeg" id="team2-logo" class="team-logo" alt="" width="100%">
       <div class="team-turn-content">
-        <div class="team-turn-time">2:30</div>
+        <div class="team-turn-time" id="team2-turn-time">Empezar</div>
       </div>
-      <div class="team-turn-turn">Turno: 2</div>
+      <div class="team-turn-turn">Turno: <span id="team2-turn-turn">0</span></div>
     </button>
     <div class="pause-turn-container">
-      <button class="pause-turn" id="pause-turn" onclick="initPage3()">Pause</button>
+      <button class="pause-turn" id="pause-turn" onclick="showPage3()">Pause</button>
     </div>
   </div>
 
@@ -236,7 +237,8 @@
   </div>
 
   <script>
-    console.log('Hello!')
+
+    // state
 
     const pages = [
       document.querySelector('#page1'),
@@ -244,30 +246,99 @@
       document.querySelector('#page3'),
     ];
 
-    const init = () => {
+    const teams = [
+      {
+        id: 0,
+        name: 'Equipo 0',
+        logo: 'team0.png',
+      },
+      {
+        id: 1,
+        name: 'Equipo 1',
+        logo: 'team1.jpeg',
+      },
+      {
+        id: 2,
+        name: 'Equipo 2',
+        logo: 'team2.jpeg',
+      },
+      {
+        id: 3,
+        name: 'Equipo 3',
+        logo: 'team3.jpeg',
+      },
+      {
+        id: 4,
+        name: 'Equipo 4',
+        logo: 'team4.jpeg',
+      },
+      {
+        id: 5,
+        name: 'Equipo 5',
+        logo: 'team5.jpeg',
+      },
+      {
+        id: 6,
+        name: 'Equipo 6',
+        logo: 'team6.jpeg',
+      },
+      {
+        id: 7,
+        name: 'Equipo 7',
+        logo: 'team7.jpeg',
+      },
+      {
+        id: 8,
+        name: 'Equipo 8',
+        logo: 'team8.jpeg',
+      },
+    ]
+
+    let gameConfig;
+    let gameState = {
+      hasStarted: false,
+      isPaused: false,
+      team1: {
+        turn: 0,
+        elapsedTime: 0,
+      },
+      team2: {
+        turn: 0,
+        elapsedTime: 0
+      },
+      isTeam1turn: false
+    }
+    let clock;
+
+    // functions
+
+    function init() {
       const urlSearchParams = new URLSearchParams(window.location.search);
       const params = Object.fromEntries(urlSearchParams.entries());
+      gameConfig = params;
 
       if (params?.team1 !== null && params?.team1 !== undefined) {
-        initPage2()
+        showPage2()
+        initClock(params)
       } else {
-        initPage1()
+        showPage1()
       }
     }
 
-    function initPage1() {
+    function showPage1() {
       pages[0].removeAttribute('hidden')
       pages[1].setAttribute('hidden', true)
       pages[2].setAttribute('hidden', true)
     }
 
-    function initPage2() {
+    function showPage2() {
       pages[0].setAttribute('hidden', true)
       pages[1].removeAttribute('hidden')
       pages[2].setAttribute('hidden', true)
     }
 
-    function initPage3() {
+    function showPage3() {
+      pauseClock()
       pages[0].setAttribute('hidden', true)
       // pages[1].setAttribute('hidden', true)
       pages[2].removeAttribute('hidden')
@@ -278,15 +349,142 @@
     }
 
     function keepGoing() {
+      startClock()
       pages[2].setAttribute('hidden', true)
     }
 
-    function turnTeam1() {
-
+    function turnForTeam1() {
+      if (!gameState.hasStarted || !gameState.isTeam1turn) {
+        if (!gameState.hasStarted) {
+          gameState.hasStarted = true
+          startGame()
+        }
+        restartClock()
+        gameState.isTeam1turn = true
+        gameState.team1.turn += 1
+        gameState.team1.elapsedTime = 0
+        document.querySelector('#team1-turn-turn').innerHTML = gameState.team1.turn
+      }
     }
-    function turnTeam2() {
-
+    function turnForTeam2() {
+      if (!gameState.hasStarted || gameState.isTeam1turn) {
+        if (!gameState.hasStarted) {
+          gameState.hasStarted = true
+          startGame()
+        }
+        restartClock()
+        gameState.isTeam1turn = false
+        gameState.team2.turn += 1
+        gameState.team2.elapsedTime = 0
+        document.querySelector('#team2-turn-turn').innerHTML = gameState.team2.turn
+      }
     }
+
+    function initClock(params) {
+      initTeam1(params.team1)
+      initTeam2(params.team2)
+    }
+
+    function startGame() {
+      startClock()
+    }
+
+    function initTeam1(id) {
+      const team = teams.find(a => a.id === Number(id))
+      const logoNode = document.querySelector('#team1-logo').src = team.logo
+      const nameNode = document.querySelector('#team1-name').innerHTML = team.name
+    }
+
+    function initTeam2(id) {
+      const team = teams.find(a => a.id === Number(id))
+      const logoNode = document.querySelector('#team2-logo').src = team.logo
+      const nameNode = document.querySelector('#team2-name').innerHTML = team.name
+    }
+
+    function applyClockLogic(timeDiff) {
+      const team1Time = document.querySelector('#team1-turn-time')
+      const team2Time = document.querySelector('#team2-turn-time')
+      const remainingTime = Number(gameConfig.time * 1000) - Number(timeDiff)
+      if (remainingTime < 0) {
+        // TODO - NEXT TURN - THROW A WARNING
+        pauseClock()
+      } else {
+        const remainingTimeInString = `${getRawMinutes(remainingTime)}:${getRawSeconds(remainingTime)}`
+        if (gameState.isTeam1turn) {
+          team1Time.innerHTML = remainingTimeInString
+        } else {
+          team2Time.innerHTML = remainingTimeInString
+        }
+      }
+    }
+
+    // clock
+
+    let startTime;
+    let repaintLoop;
+    let storedElapsedTime = 0;
+    let now;
+
+    function startClock() {
+      console.log('start clock')
+      setTimeout(() => {
+      console.log('start clock - timeout')
+        startTime = performance.now()
+        repaintLoop = requestAnimationFrame(tickClock)
+      }, Number(gameConfig.delay) * 1000)
+    }
+
+    function pauseClock() {
+      console.log('pause clock')
+      storedElapsedTime = (now - startTime) + storedElapsedTime;
+      cancelAnimationFrame(repaintLoop)
+    }
+
+    function tickClock() {
+      console.log('tick clock')
+      now = performance.now()
+      const timeDiff = (now - startTime) + storedElapsedTime || 0;
+      applyClockLogic(timeDiff)
+      repaintLoop = requestAnimationFrame(tickClock)
+    }
+
+    function restartClock() {
+      console.log('restart clock')
+      startTime = null
+      storedElapsedTime = null
+      startTime = performance.now();
+      cancelAnimationFrame(repaintLoop)
+      startClock()
+    }
+
+    function getRawMinutes(duration) {
+      const minutes = Math.round((duration / (1000 * 60)) % 60);
+      const abs = Math.round(duration / (1000 * 60))
+      const under10 = `0${minutes}`;
+      const over10 = `${minutes}`;
+      if (abs === 0) {
+        return '00'
+      } else {
+        return `${(minutes < 10) ? under10 : over10}`
+      }
+    }
+    function getRawSeconds(duration) {
+      const seconds = Math.round((duration / 1000) % 60);
+      const abs = Math.round(duration / 1000)
+      const under10 = `0${seconds}`;
+      const over10 = `${seconds}`;
+      if (abs === 0) {
+        return '00'
+      } else {
+        return `${(seconds < 10) ? under10 : over10}`
+      }
+    }
+    function getRawMilliseconds(duration) {
+      const milliseconds = Math.round((duration % 1000));
+      return `${milliseconds}`
+    }
+
+    // init
 
     init();
 
