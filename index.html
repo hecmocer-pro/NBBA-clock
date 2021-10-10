@@ -13,7 +13,7 @@
       margin: 0;
     }
 
-    .page[hidden] {
+    .page[hidden], .delay-container[hidden], .pause-turn-container[hidden] {
       display: none;
     }
 
@@ -138,18 +138,50 @@
       text-align: right;
     }
 
-    .teams-score {
+    .teams-scoreboard {
       width: 20%;
       text-align: center;
     }
 
     .page3 {
       z-index: 20;
+      background: #eeeeee66;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      flex-direction: column;
     }
 
     .team-turn-time {
       font-size: 80px;
       background: rgba(0,0,0,0.8)
+    }
+
+    .delay-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      z-index: 35;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff44;
+    }
+    .delay {
+      color: #fff;
+      font-size: 64px;
+    }
+
+    .paused {
+      font-size: 80px;
+      color: white;
+    }
+
+    .teams-score {
+      display: flex;
+      flex-direction: column;
+      color: #fff;
+      font-size: 32px;
     }
   </style>
 
@@ -159,8 +191,8 @@
         <label for="team1">Equipo 1 — local</label>
         <select name="team1" id="team1" required>
           <option value="0">N/A</option>
-          <option value="1">Equipo 1</option>
-          <option value="2">Equipo 2</option>
+          <option value="1">Orkadianoz</option>
+          <option value="2">Koalaz</option>
           <option value="3">Equipo 3</option>
           <option value="4">Equipo 4</option>
           <option value="5">Equipo 5</option>
@@ -173,8 +205,8 @@
         <label for="team2">Equipo 2 — visitante</label>
         <select name="team2" id="team2" required>
           <option value="0">N/A</option>
-          <option value="1">Equipo 1</option>
-          <option value="2">Equipo 2</option>
+          <option value="1">Orkadianoz</option>
+          <option value="2">Koalaz</option>
           <option value="3">Equipo 3</option>
           <option value="4">Equipo 4</option>
           <option value="5">Equipo 5</option>
@@ -204,10 +236,10 @@
   <div class="page page2" id="page2" hidden>
     <div class="score">
       <div class="team1-score-name team-score-name" id="team1-name">Orkadianoz</div>
-      <div class="teams-score">
-        <span>2</span>
+      <div class="teams-scoreboard">
+        <span id="team1-scoreboard">0</span>
         <span>–</span>
-        <span>0</span>
+        <span id="team2-scoreboard">0</span>
       </div>
       <div class="team2-score-name team-score-name" id="team2-name">Angry Stitches</div>
     </div>
@@ -225,15 +257,51 @@
       </div>
       <div class="team-turn-turn">Turno: <span id="team2-turn-turn">0</span></div>
     </button>
-    <div class="pause-turn-container">
-      <button class="pause-turn" id="pause-turn" onclick="showPage3()">Pause</button>
+    <div class="pause-turn-container" id="pause-turn-container" hidden>
+      <button class="pause-turn" onclick="showPage3()">Pause</button>
     </div>
   </div>
 
   <div class="page page3" id="page3" hidden>
-    Pause overlay
-    <button onclick="keepGoing()">Continue</button>
-    <button onclick="reset()">New Game</button>
+    <div class="paused">Pausado</div>
+    <div class="teams-score">
+      <label for="team1-score" id="team1-score-name">Equipo 1</label>
+      <select name="team1-score" id="team1-score-input">
+        <option value="0">0 TD</option>
+        <option value="1">1 TD</option>
+        <option value="2">2 TD</option>
+        <option value="3">3 TD</option>
+        <option value="4">4 TD</option>
+        <option value="5">5 TD</option>
+        <option value="6">6 TD</option>
+        <option value="7">7 TD</option>
+        <option value="8">8 TD</option>
+        <option value="9">9 TD</option>
+        <option value="10">10 TD</option>
+      </select>
+      <label for="team2-score" id="team2-score-name">Equipo 2</label>
+      <select name="team2-score" id="team2-score-input">
+        <option value="0">0 TD</option>
+        <option value="1">1 TD</option>
+        <option value="2">2 TD</option>
+        <option value="3">3 TD</option>
+        <option value="4">4 TD</option>
+        <option value="5">5 TD</option>
+        <option value="6">6 TD</option>
+        <option value="7">7 TD</option>
+        <option value="8">8 TD</option>
+        <option value="9">9 TD</option>
+        <option value="10">10 TD</option>
+      </select>
+    </div>
+    <div>
+      <button onclick="keepGoing()">Continue</button>
+      <button onclick="reset()">New Game</button>
+    </div>
+  </div>
+
+  <div class="delay-container" id="delay-container" hidden>
+    <div class="delay" id="elapsedDelay">Prepárate!</div>
   </div>
 
   <script>
@@ -249,17 +317,17 @@
     const teams = [
       {
         id: 0,
-        name: 'Equipo 0',
+        name: 'BB team',
         logo: 'team0.png',
       },
       {
         id: 1,
-        name: 'Equipo 1',
+        name: 'Orkadianoz',
         logo: 'team1.jpeg',
       },
       {
         id: 2,
-        name: 'Equipo 2',
+        name: 'Koalaz',
         logo: 'team2.jpeg',
       },
       {
@@ -349,6 +417,7 @@
     }
 
     function keepGoing() {
+      setTouchdowns()
       startClock()
       pages[2].setAttribute('hidden', true)
     }
@@ -358,8 +427,9 @@
         if (!gameState.hasStarted) {
           gameState.hasStarted = true
           startGame()
+        } else {
+          restartClock()
         }
-        restartClock()
         gameState.isTeam1turn = true
         gameState.team1.turn += 1
         gameState.team1.elapsedTime = 0
@@ -371,8 +441,9 @@
         if (!gameState.hasStarted) {
           gameState.hasStarted = true
           startGame()
+        } else {
+          restartClock()
         }
-        restartClock()
         gameState.isTeam1turn = false
         gameState.team2.turn += 1
         gameState.team2.elapsedTime = 0
@@ -386,19 +457,32 @@
     }
 
     function startGame() {
+      document.querySelector('#pause-turn-container').removeAttribute('hidden')
       startClock()
     }
 
     function initTeam1(id) {
       const team = teams.find(a => a.id === Number(id))
-      const logoNode = document.querySelector('#team1-logo').src = team.logo
-      const nameNode = document.querySelector('#team1-name').innerHTML = team.name
+      const logoNode = document.querySelector('#team1-logo')
+      const nameNode = document.querySelector('#team1-name')
+      const teamScoreNode = document.querySelector('#team1-score-name')
+      const teamScoreInputNode = document.querySelector('#team1-score-input')
+      logoNode.src = team.logo
+      nameNode.innerHTML = team.name
+      teamScoreNode.innerHTML = team.name
+      teamScoreInputNode.value = '0'
     }
 
     function initTeam2(id) {
       const team = teams.find(a => a.id === Number(id))
-      const logoNode = document.querySelector('#team2-logo').src = team.logo
-      const nameNode = document.querySelector('#team2-name').innerHTML = team.name
+      const logoNode = document.querySelector('#team2-logo')
+      const nameNode = document.querySelector('#team2-name')
+      const teamScoreNode = document.querySelector('#team2-score-name')
+      const teamScoreInputNode = document.querySelector('#team2-score-input')
+      logoNode.src = team.logo
+      nameNode.innerHTML = team.name
+      teamScoreNode.innerHTML = team.name
+      teamScoreInputNode.value = '0'
     }
 
     function applyClockLogic(timeDiff) {
@@ -418,6 +502,13 @@
       }
     }
 
+    function setTouchdowns() {
+      const team1ScoreInputNode = document.querySelector('#team1-score-input')
+      const team2ScoreInputNode = document.querySelector('#team2-score-input')
+      document.querySelector("#team1-scoreboard").innerHTML = team1ScoreInputNode.value
+      document.querySelector("#team2-scoreboard").innerHTML = team2ScoreInputNode.value
+    }
+
     // clock
 
     let startTime;
@@ -427,11 +518,11 @@
 
     function startClock() {
       console.log('start clock')
-      setTimeout(() => {
-      console.log('start clock - timeout')
+      triggerDelay().then(() => {
+        console.log('start clock - timeout')
         startTime = performance.now()
         repaintLoop = requestAnimationFrame(tickClock)
-      }, Number(gameConfig.delay) * 1000)
+      })
     }
 
     function pauseClock() {
@@ -482,6 +573,17 @@
     function getRawMilliseconds(duration) {
       const milliseconds = Math.round((duration % 1000));
       return `${milliseconds}`
+    }
+
+    function triggerDelay() {
+      return new Promise((resolve, reject) => {
+        const delayContainerNode = document.querySelector('#delay-container')
+        delayContainerNode.removeAttribute('hidden')
+        setTimeout(() => {
+          delayContainerNode.setAttribute('hidden', true)
+          resolve()
+        }, Number(gameConfig.delay) * 1000)
+      })
     }
 
     // init
