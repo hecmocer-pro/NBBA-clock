@@ -457,6 +457,27 @@
 
     // state
 
+    const pleaseRotateNode = document.querySelector('#pleaseRotate')
+    const team2TurnTurnNode = document.querySelector('#team2-turn-turn')
+    const team1TurnTurnNode = document.querySelector('#team1-turn-turn')
+    const halfNode = document.querySelector('#half')
+    const pauseTurnContainerNode = document.querySelector('#pause-turn-container')
+    const team1NameNode = document.querySelector('#team1-name')
+    const team1LogoNode = document.querySelector('#team1-logo')
+    const team1ScoreNameNode = document.querySelector('#team1-score-name')
+    const team1ScoreInputNode = document.querySelector('#team1-score-input')
+    const team2NameNode = document.querySelector('#team2-name')
+    const team2LogoNode = document.querySelector('#team2-logo')
+    const team2ScoreNameNode = document.querySelector('#team2-score-name')
+    const team2ScoreInputNode = document.querySelector('#team2-score-input')
+    const team1TurnTimeNode = document.querySelector('#team1-turn-time')
+    const team2TurnTimeNode = document.querySelector('#team2-turn-time')
+    const team1ScoreboardNode = document.querySelector("#team1-scoreboard")
+    const team2ScoreboardNode = document.querySelector("#team2-scoreboard")
+    const team1TurnNode = document.querySelector('#team1-turn')
+    const team2TurnNode = document.querySelector('#team2-turn')
+    const delayContainerNode = document.querySelector('#delay-container')
+
     const pages = [
       document.querySelector('#page1'),
       document.querySelector('#page2'),
@@ -555,7 +576,7 @@
       pages[0].setAttribute('hidden', true)
       pages[1].removeAttribute('hidden')
       pages[2].setAttribute('hidden', true)
-      document.querySelector('#pleaseRotate').removeAttribute('hidden')
+      pleaseRotateNode.removeAttribute('hidden')
     }
 
     function showPage3() {
@@ -593,9 +614,9 @@
           finishedHalf()
           gameState.team2.turn = 0
           gameState.team1.turn = 1
-          document.querySelector('#team2-turn-turn').innerHTML = gameState.team2.turn
+          team2TurnTurnNode.innerHTML = gameState.team2.turn
         }
-        document.querySelector('#team1-turn-turn').innerHTML = gameState.team1.turn
+        team1TurnTurnNode.innerHTML = gameState.team1.turn
         activateTeam1()
       }
     }
@@ -614,19 +635,19 @@
           finishedHalf()
           gameState.team1.turn = 0
           gameState.team2.turn = 1
-          document.querySelector('#team1-turn-turn').innerHTML = gameState.team1.turn
+          team1TurnTurnNode.innerHTML = gameState.team1.turn
         }
-        document.querySelector('#team2-turn-turn').innerHTML = gameState.team2.turn
+        team2TurnTurnNode.innerHTML = gameState.team2.turn
         activateTeam2()
       }
     }
 
     function finishedHalf() {
       if (!gameState.isSecondPart) {
-        document.querySelector('#half').innerHTML = 'Segunda Parte'
+        halfNode.innerHTML = 'Segunda Parte'
         gameState.isSecondPart = true
       } else {
-        document.querySelector('#half').innerHTML = '¡Fin del partido!'
+        halfNode.innerHTML = '¡Fin del partido!'
         finishGame()
       }
     }
@@ -641,37 +662,27 @@
     }
 
     function startGame() {
-      document.querySelector('#pause-turn-container').removeAttribute('hidden')
+      pauseTurnContainerNode.removeAttribute('hidden')
       startClock()
     }
 
     function initTeam1(id) {
       const team = teams.find(a => a.id === Number(id))
-      const logoNode = document.querySelector('#team1-logo')
-      const nameNode = document.querySelector('#team1-name')
-      const teamScoreNode = document.querySelector('#team1-score-name')
-      const teamScoreInputNode = document.querySelector('#team1-score-input')
-      logoNode.src = team.logo
-      nameNode.innerHTML = team.name
-      teamScoreNode.innerHTML = team.name
-      teamScoreInputNode.value = '0'
+      team1LogoNode.src = team.logo
+      team1NameNode.innerHTML = team.name
+      team1ScoreNameNode.innerHTML = team.name
+      team1ScoreInputNode.value = '0'
     }
 
     function initTeam2(id) {
       const team = teams.find(a => a.id === Number(id))
-      const logoNode = document.querySelector('#team2-logo')
-      const nameNode = document.querySelector('#team2-name')
-      const teamScoreNode = document.querySelector('#team2-score-name')
-      const teamScoreInputNode = document.querySelector('#team2-score-input')
-      logoNode.src = team.logo
-      nameNode.innerHTML = team.name
-      teamScoreNode.innerHTML = team.name
-      teamScoreInputNode.value = '0'
+      team2LogoNode.src = team.logo
+      team2NameNode.innerHTML = team.name
+      team2ScoreNameNode.innerHTML = team.name
+      team2ScoreInputNode.value = '0'
     }
 
     function applyClockLogic(timeDiff) {
-      const team1Time = document.querySelector('#team1-turn-time')
-      const team2Time = document.querySelector('#team2-turn-time')
       const remainingTime = Number(gameConfig.time * 1000) - Number(timeDiff)
       if (remainingTime < 0) {
         // TODO - NEXT TURN - THROW A WARNING
@@ -680,45 +691,43 @@
       } else {
         const remainingTimeInString = `${getRawMinutes(remainingTime)}:${getRawSeconds(remainingTime)}`
         if (gameState.isTeam1turn) {
-          team1Time.innerHTML = remainingTimeInString
+          team1TurnTimeNode.innerHTML = remainingTimeInString
         } else {
-          team2Time.innerHTML = remainingTimeInString
+          team2TurnTimeNode.innerHTML = remainingTimeInString
         }
       }
     }
 
     function setTouchdowns() {
-      const team1ScoreInputNode = document.querySelector('#team1-score-input')
-      const team2ScoreInputNode = document.querySelector('#team2-score-input')
-      document.querySelector("#team1-scoreboard").innerHTML = team1ScoreInputNode.value
-      document.querySelector("#team2-scoreboard").innerHTML = team2ScoreInputNode.value
+      team1ScoreboardNode.innerHTML = team1ScoreInputNode.value
+      team2ScoreboardNode.innerHTML = team2ScoreInputNode.value
     }
 
     function activateTeam1() {
-      document.querySelector('#team1-turn').classList.remove('notActivePlayer')
-      document.querySelector('#team1-turn').classList.add('activePlayer')
-      document.querySelector('#team2-turn').classList.remove('activePlayer')
-      document.querySelector('#team2-turn').classList.add('notActivePlayer')
+      team1TurnNode.classList.remove('notActivePlayer')
+      team1TurnNode.classList.add('activePlayer')
+      team2TurnNode.classList.remove('activePlayer')
+      team2TurnNode.classList.add('notActivePlayer')
     }
 
     function activateTeam2() {
-      document.querySelector('#team2-turn').classList.remove('notActivePlayer')
-      document.querySelector('#team2-turn').classList.add('activePlayer')
-      document.querySelector('#team1-turn').classList.remove('activePlayer')
-      document.querySelector('#team1-turn').classList.add('notActivePlayer')
+      team2TurnNode.classList.remove('notActivePlayer')
+      team2TurnNode.classList.add('activePlayer')
+      team1TurnNode.classList.remove('activePlayer')
+      team1TurnNode.classList.add('notActivePlayer')
     }
 
     function setTurnover() {
       if (gameState.isTeam1turn) {
-        document.querySelector('#team1-turn').classList.add('turnover')
+        team1TurnNode.classList.add('turnover')
       } else {
-        document.querySelector('#team2-turn').classList.add('turnover')
+        team2TurnNode.classList.add('turnover')
       }
     }
 
     function resetTurnover() {
-      document.querySelector('#team1-turn').classList.remove('turnover')
-      document.querySelector('#team2-turn').classList.remove('turnover')
+      team1TurnNode.classList.remove('turnover')
+      team2TurnNode.classList.remove('turnover')
     }
 
     function goFullscreen() {
@@ -791,7 +800,6 @@
 
     function triggerDelay() {
       return new Promise((resolve, reject) => {
-        const delayContainerNode = document.querySelector('#delay-container')
         delayContainerNode.removeAttribute('hidden')
         setTimeout(() => {
           delayContainerNode.setAttribute('hidden', true)
