@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Roboto+Mono:wght@300&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <meta name="theme-color" content="#000000">
 </head>
 <body>
 
@@ -16,9 +20,10 @@
       margin: 0;
       background: black;
       font-family: arial;
+      font-size: 16px;
     }
 
-    .page[hidden], .delay-container[hidden], .pause-turn-container[hidden] {
+    .page[hidden], .delay-container[hidden], .pause-turn-container[hidden], .pleaseRotate[hidden] {
       display: none;
     }
 
@@ -92,10 +97,10 @@
     }
 
     .pause-turn {
-      width: 300px;
-      height: 180px;
+      width: 18rem;
+      height: 9rem;
       z-index: 15;
-      font-size: 32px;
+      font-size: 2rem;
       background: white;
       border-radius: 10px 10px 0 0;
       border: none;
@@ -115,7 +120,7 @@
 
     .team-turn-content, .score, .half-container, .team-turn-turn {
       color: white;
-      font-size: 64px;
+      font-size: 4rem;
       z-index: 5;
     }
 
@@ -134,8 +139,7 @@
     }
 
     .score {
-      position: absolute;
-      top: 0;
+      position: relative;
       z-index: 10;
       pointer-events: none;
       width: 100%;
@@ -146,18 +150,17 @@
     }
 
     .half-container {
-      position: absolute;
-      top: 86px;
+      position: relative;
       z-index: 10;
       pointer-events: none;
       width: 100%;
-      font-size: 32px;
+      font-size: 2rem;
 
       display: flex;
       justify-content: center;
 
       font-family: arial;
-      font-size: 24px;
+      font-size: 1.5rem;
 
       border-radius: 0 0 10px 10px;
     }
@@ -167,23 +170,27 @@
       padding: 8px 16px;
     }
 
-    .score div:nth-child(1), .score div:nth-child(3) {
-      width: 45%;
-    }
-
     .team-score-name {
       width: 40%;
+      font-size: 3rem;
       font-family: 'Cinzel', serif;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
     }
 
     .team1-score-name {
-      text-align: right;
+      justify-content: flex-end;
     }
 
     .teams-scoreboard {
       width: 20%;
       text-align: center;
       font-family: 'Roboto Mono', monospace;
+    }
+
+    .page2 {
+      display: block;
     }
 
     .page3 {
@@ -205,7 +212,7 @@
     }
 
     .team-turn-time {
-      font-size: 80px;
+      font-size: 5rem;
       background: rgba(0,0,0,0.8);
       padding: 16px 0;
     }
@@ -216,17 +223,17 @@
       align-items: center;
       position: absolute;
       z-index: 35;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       background-color: #ffffff44;
     }
     .delay {
       color: #fff;
-      font-size: 64px;
+      font-size: 4rem;
     }
 
     .paused {
-      font-size: 64px;
+      font-size: 4rem;
       margin-bottom: 24px;
     }
 
@@ -254,7 +261,54 @@
     .turnover {
       background: red;
     }
+
+    .pleaseRotate {
+      display: none;
+      z-index: 40;
+      position: absolute;
+      font-size: 3rem;
+    }
+    .pleaseRotate-icons {
+      margin: 24px 0;
+      font-size: 10rem;
+    }
+    .pleaseRotate-rotated {
+      display: inline-block;
+      transform: rotate(0.25turn);
+    }
+
+    @media (max-width: 1000px) {
+      :root {
+        font-size: 10px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .pleaseRotate {
+        display: flex;
+        z-index: 40;
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        background: white;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+    }
+
   </style>
+
+  <div class="pleaseRotate" id="pleaseRotate" hidden>
+    Gira la pantalla
+    <div class="pleaseRotate-icons">
+      <span>📱</span>
+      <span>↩️</span>
+      <span class="pleaseRotate-rotated">📱</span>
+    </div>
+    <button onclick="goFullscreen()">Fullscreen</button>
+
+  </div>
 
   <div class="page page1" id="page1" hidden>
     <form id="form" class="page1-form" action="">
@@ -298,10 +352,10 @@
         <label for="">Tiempo por turno</label>
         <input name="time" type="text" value="150" required>
       </div>
-      <div class="page1-form-group">
+      <!-- <div class="page1-form-group">
         <label for="">Retardo</label>
         <input name="delay" type="text" value="1" required>
-      </div>
+      </div> -->
       <div class="page1-form-group">
         <button type="submit">¡Empezar partido!</button>
       </div>
@@ -310,13 +364,21 @@
 
   <div class="page page2" id="page2" hidden>
     <div class="score">
-      <div class="team1-score-name team-score-name" id="team1-name">Equipo 1</div>
+      <div class="team1-score-name team-score-name">
+        <div id="team1-name">
+          Equipo 1
+        </div>
+      </div>
       <div class="teams-scoreboard">
         <span id="team1-scoreboard">0</span>
         <span>–</span>
         <span id="team2-scoreboard">0</span>
       </div>
-      <div class="team2-score-name team-score-name" id="team2-name">Equipo 2</div>
+      <div class="team2-score-name team-score-name">
+        <div id="team2-name">
+          Equipo 2
+        </div>
+      </div>
     </div>
     <div class="half-container">
       <div class="half" id="half">
@@ -382,6 +444,7 @@
       <div class="paused-buttons">
         <button onclick="keepGoing()">Continuar</button>
         <button onclick="reset()">Nuevo partido</button>
+        <button onclick="goFullscreen()">Fullscreen</button>
       </div>
     </div>
   </div>
@@ -472,6 +535,7 @@
       const params = Object.fromEntries(urlSearchParams.entries());
       gameConfig = params;
       gameConfig.time = Number(params.time) + 1; // para que empiece en el minuto exacto
+      gameConfig.delay = 2;
 
       if (params?.team1 !== null && params?.team1 !== undefined) {
         showPage2()
@@ -491,6 +555,7 @@
       pages[0].setAttribute('hidden', true)
       pages[1].removeAttribute('hidden')
       pages[2].setAttribute('hidden', true)
+      document.querySelector('#pleaseRotate').removeAttribute('hidden')
     }
 
     function showPage3() {
@@ -613,7 +678,6 @@
         pauseClock()
         setTurnover()
       } else {
-        console.log(remainingTime)
         const remainingTimeInString = `${getRawMinutes(remainingTime)}:${getRawSeconds(remainingTime)}`
         if (gameState.isTeam1turn) {
           team1Time.innerHTML = remainingTimeInString
@@ -657,6 +721,16 @@
       document.querySelector('#team2-turn').classList.remove('turnover')
     }
 
+    function goFullscreen() {
+      document.body.requestFullscreen()
+      .then(function() {
+        // element has entered fullscreen mode successfully
+      })
+      .catch(function(error) {
+        // element could not enter fullscreen mode
+      });
+    }
+
     // clock
 
     let startTime;
@@ -665,23 +739,19 @@
     let now;
 
     function startClock() {
-      console.log('start clock')
       resetTurnover()
       triggerDelay().then(() => {
-        console.log('start clock - timeout')
         startTime = performance.now()
         repaintLoop = requestAnimationFrame(tickClock)
       })
     }
 
     function pauseClock() {
-      console.log('pause clock')
       storedElapsedTime = (now - startTime) + storedElapsedTime;
       cancelAnimationFrame(repaintLoop)
     }
 
     function tickClock() {
-      console.log('tick clock')
       now = performance.now()
       const timeDiff = (now - startTime) + storedElapsedTime || 0;
       repaintLoop = requestAnimationFrame(tickClock)
@@ -689,7 +759,6 @@
     }
 
     function restartClock() {
-      console.log('restart clock')
       startTime = null
       storedElapsedTime = null
       startTime = performance.now();
@@ -734,7 +803,6 @@
     // init
 
     init();
-
   </script>
 
 </body>
