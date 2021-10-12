@@ -3,12 +3,12 @@
   "name": "NBBA Clock",
   "icons": [
     {
-      "src": "NBBA only logo.png",
+      "src": "hLogo_192_black_transparent.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "NBBA only logo.png",
+      "src": "hLogo_512_black_transparent.png",
       "type": "image/png",
       "sizes": "512x512"
     }
