@@ -4,14 +4,23 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>NBBA Clock</title>
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <meta name="theme-color" content="#000000" />
+  <meta name="application-name" content="NBBA Clock">
+  <meta name="description" content="NBBA official clock and application">
+  <meta name="keywords"
+  content="Hecmocer, Hector, Moreno, Hector Moreno, NBBA, Bloodbowl, Tracker, Web, Application, Frontend">
+  <meta name="author" content="Hecmocer">
+  <link rel="manifest" href="manifest.json">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel&family=Roboto+Mono:wght@300&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <meta name="theme-color" content="#000000">
 </head>
 <body>
 
@@ -812,6 +821,16 @@
 
     init();
   </script>
+
+<script>
+  try {
+    window.addEventListener("load", () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js");
+      }
+    });
+  } catch {}
+</script>
 
 </body>
 </html>
