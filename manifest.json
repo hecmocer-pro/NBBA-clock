@@ -1,6 +1,6 @@
 {
-  "short_name": "RGS",
-  "name": "Ranked Game Seasons",
+  "short_name": "Daily Quests",
+  "name": "Daily quest tracker",
   "icons": [
     {
       "src": "hLogo_192_black_transparent.png",
@@ -13,12 +13,12 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": "/RankedGameSeasons",
+  "start_url": "/NBBA",
   "background_color": "#FFFFFF",
   "display": "minimal-ui",
   "scope": "/",
   "theme_color": "#EEEEEE",
   "shortcuts": [],
-  "description": "Keep track of the ranked seasons of your favourite games!",
+  "description": "Keep track of your favourite game's daily quests",
   "screenshots": []
 }
