@@ -1,6 +1,6 @@
 {
-  "short_name": "Daily Quests",
-  "name": "Daily quest tracker",
+  "short_name": "NBBA",
+  "name": "NBBA App",
   "icons": [
     {
       "src": "hLogo_192_black_transparent.png",
@@ -14,11 +14,11 @@
     }
   ],
   "start_url": "/NBBA",
-  "background_color": "#FFFFFF",
+  "background_color": "#000000",
   "display": "minimal-ui",
   "scope": "/",
-  "theme_color": "#EEEEEE",
+  "theme_color": "#000000",
   "shortcuts": [],
-  "description": "Keep track of your favourite game's daily quests",
+  "description": "The official NBBA App",
   "screenshots": []
 }
