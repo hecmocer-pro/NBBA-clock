@@ -712,7 +712,8 @@
         score: 0
       },
       isTeam1turn: false,
-      isSecondPart: false
+      isSecondPart: false,
+      endedGame: false
     }
     let clock;
     let wakeLock = null;
@@ -771,47 +772,68 @@
     }
 
     function turnForTeam1() {
+      const firstTurnInTheGame = !gameState.hasStarted
+      const isAlreadyHisTurn = gameState.isTeam1turn
+      const hasJustFinishedAHalf = gameState.team1.turn === Number(gameConfig.turns)
+
       requestWakeLock()
-      if (!gameState.hasStarted || !gameState.isTeam1turn) {
-        if (!gameState.hasStarted) {
-          gameState.hasStarted = true
-          startGame()
-        } else {
-          restartClock()
-        }
-        gameState.isTeam1turn = true
+
+      if (firstTurnInTheGame) {
+        gameState.hasStarted = true
+        startGame()
+      }
+      if (!isAlreadyHisTurn) {
         gameState.team1.turn += 1
         gameState.team1.elapsedTime = 0
-        if (gameState.team1.turn > Number(gameConfig.turns)) {
-          finishedHalf()
-          gameState.team2.turn = 0
-          gameState.team1.turn = 1
-          team2TurnTurnNode.innerHTML = gameState.team2.turn
-        }
-        team1TurnTurnNode.innerHTML = gameState.team1.turn
         activateTeam1()
+        gameState.isTeam1turn = true
+        gameState.isTeam2turn = false
+        if (!hasJustFinishedAHalf) {
+          team1TurnTurnNode.innerHTML = gameState.team1.turn
+          restartClock()
+        } else {
+          // Si el equipo 1 termina la primera parte, es que empezó siendo el primero, y el primer turno de la segunda parte corresponde al otro jugador
+          gameState.team1.turn = 0
+          gameState.team2.turn = 0
+          team1TurnTimeNode.innerHTML = 'Fin primera parte'
+          team1TurnTurnNode.innerHTML = gameState.team1.turn
+          team2TurnTurnNode.innerHTML = gameState.team2.turn
+          finishedHalf()
+          pauseClock()
+        }
       }
     }
+
     function turnForTeam2() {
+      const firstTurnInTheGame = !gameState.hasStarted
+      const isAlreadyHisTurn = gameState.isTeam2turn
+      const hasJustFinishedAHalf = gameState.team2.turn === Number(gameConfig.turns)
+
       requestWakeLock()
-      if (!gameState.hasStarted || gameState.isTeam1turn) {
-        if (!gameState.hasStarted) {
-          gameState.hasStarted = true
-          startGame()
-        } else {
-          restartClock()
-        }
-        gameState.isTeam1turn = false
+
+      if (firstTurnInTheGame) {
+        gameState.hasStarted = true
+        startGame()
+      }
+      if (!isAlreadyHisTurn) {
         gameState.team2.turn += 1
         gameState.team2.elapsedTime = 0
-        if (gameState.team2.turn > Number(gameConfig.turns)) {
-          finishedHalf()
-          gameState.team1.turn = 0
-          gameState.team2.turn = 1
-          team1TurnTurnNode.innerHTML = gameState.team1.turn
-        }
-        team2TurnTurnNode.innerHTML = gameState.team2.turn
         activateTeam2()
+        gameState.isTeam1turn = false
+        gameState.isTeam2turn = true
+        if (!hasJustFinishedAHalf) {
+          team2TurnTurnNode.innerHTML = gameState.team2.turn
+          restartClock()
+        } else {
+          // Si el equipo 2 termina la primera parte, es que empezó siendo el primero, y el primer turno de la segunda parte corresponde al otro jugador
+          gameState.team1.turn = 0
+          gameState.team2.turn = 0
+          team2TurnTimeNode.innerHTML = 'Fin primera parte'
+          team1TurnTurnNode.innerHTML = gameState.team1.turn
+          team2TurnTurnNode.innerHTML = gameState.team2.turn
+          finishedHalf()
+          pauseClock()
+        }
       }
     }
 
@@ -819,6 +841,7 @@
       if (!gameState.isSecondPart) {
         halfNodes.forEach(a => a.innerHTML = 'Segunda Parte')
         gameState.isSecondPart = true
+        // showPage3()
       } else {
         halfNodes.forEach(a => a.innerHTML = '¡Fin del partido!')
         finishGame()
@@ -826,7 +849,7 @@
     }
 
     function finishGame() {
-      pauseClock()
+      gameState.endedGame = true
       endgameOverlayNode.removeAttribute('hidden')
       if (gameState.team1.score > gameState.team2.score) {
         endgameStateNode.innerHTML = 'Ganador'
@@ -849,7 +872,6 @@
 
     function startGame() {
       pauseTurnContainerNode.removeAttribute('hidden')
-      startClock()
     }
 
     function initTeam1(id) {
@@ -870,7 +892,7 @@
 
     function applyClockLogic(timeDiff) {
       const remainingTime = Number(gameConfig.time * 1000) - Number(timeDiff)
-      if (remainingTime < 0) {
+      if (remainingTime < 0 || gameState.endedGame) {
         pauseClock()
         setTurnover()
         navigator.vibrate(1000);
