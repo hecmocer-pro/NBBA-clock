@@ -46,6 +46,10 @@
       position: absolute;
     }
 
+    .page1 {
+      padding: 5rem 0;
+    }
+
     .pleaseRotate, .page1 {
       background: #e2e9ff;
     }
@@ -244,6 +248,8 @@
     }
 
     .paused {
+      display: flex;
+      justify-content: center;
       font-size: 4rem;
       margin-bottom: 24px;
     }
@@ -369,6 +375,15 @@
       position: absolute;
     }
 
+    .form1-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .label-helper {
+      font-size: 1rem;
+    }
   </style>
 
   <div class="pleaseRotate" id="pleaseRotate" hidden>
@@ -386,7 +401,7 @@
     <form id="form" class="page1-form" action="">
       <img src="NBBA.png" alt="">
       <div class="page1-form-group">
-        <label for="team1">Equipo 1 — local</label>
+        <label for="team1" class="form1-label">Equipo 1<span class="label-helper">Local</span></label>
         <select name="team1" required>
           <option value="0">N/A</option>
           <option value="1">Orkadianoz</option>
@@ -400,7 +415,7 @@
         </select>
       </div>
       <div class="page1-form-group">
-        <label for="team2">Equipo 2 — visitante</label>
+        <label for="team2" class="form1-label">Equipo 2<span class="label-helper">Visitante</span></label>
         <select name="team2" required>
           <option value="0">N/A</option>
           <option value="1">Orkadianoz</option>
@@ -416,18 +431,31 @@
       <div class="page1-form-group">
         <label for="turns">Turnos</label>
         <select name="turns" required>
-          <option value="6">6 (BB7)</option>
-          <option value="8">8 (BB11)</option>
+          <option value="6">6 turnos — BB7</option>
+          <option value="8">8 turnos — BB11</option>
         </select>
       </div>
       <div class="page1-form-group">
-        <label for="">Tiempo por turno</label>
-        <input name="time" type="text" value="150" required>
+        <label for="time" class="form1-label">Tiempo por turno</label>
+        <select name="time" required>
+          <option value="60">1 min</option>
+          <option value="90">1 min 30s</option>
+          <option value="120">2 min</option>
+          <option value="150" selected>2 min 30s</option>
+          <option value="180">3 min</option>
+          <option value="210">3 min 30s</option>
+        </select>
       </div>
-      <!-- <div class="page1-form-group">
-        <label for="">Retardo</label>
-        <input name="delay" type="text" value="1" required>
-      </div> -->
+      <div class="page1-form-group">
+        <label for="delay" class="form1-label">Retardo</label>
+        <select name="delay" required>
+          <option value="0">Instantáneo</option>
+          <option value="1">1 segundo</option>
+          <option value="2" selected>2 segundos</option>
+          <option value="3">3 segundos</option>
+          <option value="5">5 segundos</option>
+        </select>
+      </div>
       <div class="page1-form-group">
         <button type="submit">¡Empezar partido!</button>
       </div>
@@ -665,6 +693,7 @@
     }
     let clock;
     let wakeLock = null;
+    let isInFullscreen = false;
 
     // functions
 
@@ -868,13 +897,19 @@
 
     function goFullscreen() {
       requestWakeLock()
-      document.body.requestFullscreen()
-      .then(function() {
-        // element has entered fullscreen mode successfully
-      })
-      .catch(function(error) {
-        // element could not enter fullscreen mode
-      });
+      if (isInFullscreen) {
+        isInFullscreen = false
+        document.exitFullscreen();
+      } else {
+        isInFullscreen = true
+        document.body.requestFullscreen()
+        .then(function() {
+          // element has entered fullscreen mode successfully
+        })
+        .catch(function(error) {
+          // element could not enter fullscreen mode
+        });
+      }
     }
 
     // Function that attempts to request a wake lock.
