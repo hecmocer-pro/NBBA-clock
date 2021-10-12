@@ -219,6 +219,7 @@
       padding: 60px;
       border-radius: 3px;
       color: black;
+      box-shadow: rgb(0 0 0 / 50%) 1px 1px 15px;
     }
 
     .team-turn-time {
@@ -819,9 +820,9 @@
     function applyClockLogic(timeDiff) {
       const remainingTime = Number(gameConfig.time * 1000) - Number(timeDiff)
       if (remainingTime < 0) {
-        // TODO - NEXT TURN - THROW A WARNING
         pauseClock()
         setTurnover()
+        navigator.vibrate(1000);
       } else {
         const remainingTimeInString = `${getRawMinutes(remainingTime)}:${getRawSeconds(remainingTime)}`
         if (gameState.isTeam1turn) {
