@@ -32,7 +32,7 @@
       font-size: 16px;
     }
 
-    .page[hidden], .delay-container[hidden], .pause-turn-container[hidden], .pleaseRotate[hidden] {
+    .page[hidden], .delay-container[hidden], .pause-turn-container[hidden], .pleaseRotate[hidden], .endgame-winner[hidden] {
       display: none;
     }
 
@@ -177,6 +177,7 @@
     .half {
       background: rgba(0,0,0,0.8);
       padding: 8px 16px;
+      border-radius: 0 0 5px 5px;
     }
 
     .team-score-name {
@@ -304,6 +305,68 @@
         align-items: center;
         flex-direction: column;
       }
+    }
+
+    .endgame-overlay {
+      position: absolute;
+      z-index: 20;
+      width: 100vw;
+      height: 100vh;
+      background: #EB3349;  /* fallback for old browsers */
+      background: -webkit-linear-gradient(to top, #F45C43 50%, #c71d31);  /* Chrome 10-25, Safari 5.1-6 */
+      background: linear-gradient(to top, #F45C43 50%, #c71d31); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    }
+
+    .endgame-gameend {
+      font-family: arial;
+      font-size: 1.5rem;
+      display: flex;
+      justify-content: center;
+      margin: 3rem 0;
+    }
+
+    .endgame-main {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    .endgame-winner {
+      width: 40vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .endgame-logos {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      top: 0;
+      z-index: 5;
+    }
+
+    .endgame-state {
+      font-size: 8rem;
+      color: white;
+      z-index: 10;
+      text-shadow: black 1px 1px 5px;
+      padding: 2rem 4rem;
+      border-radius: 15px;
+      position: absolute;
+      bottom: 0;
+    }
+
+    #confetti-canvas {
+      position: absolute;
     }
 
   </style>
@@ -462,6 +525,44 @@
     <div class="delay" id="elapsedDelay"></div>
   </div>
 
+  <div class="endgame-overlay" id="endgame-overlay" hidden>
+    <div class="score">
+      <div class="team1-score-name team-score-name">
+        <div id="team1-name">
+          Equipo 1
+        </div>
+      </div>
+      <div class="teams-scoreboard">
+        <span id="team1-scoreboard">0</span>
+        <span>–</span>
+        <span id="team2-scoreboard">0</span>
+      </div>
+      <div class="team2-score-name team-score-name">
+        <div id="team2-name">
+          Equipo 2
+        </div>
+      </div>
+    </div>
+    <div class="half-container">
+      <div class="half" id="half">
+        Fin del partido
+      </div>
+    </div>
+    <div class="endgame-main">
+      <div class="endgame-state" id="endgame-state">
+        Empate
+      </div>
+      <div class="endgame-logos">
+        <div class="endgame-winner" id="endgame-team1" hidden>
+          <img id="team1-logo" src="team0.png" alt="" width="100%">
+        </div>
+        <div class="endgame-winner" id="endgame-team2" hidden>
+          <img id="team2-logo" src="team0.png" alt="" width="100%">
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
 
     // state
@@ -469,23 +570,27 @@
     const pleaseRotateNode = document.querySelector('#pleaseRotate')
     const team2TurnTurnNode = document.querySelector('#team2-turn-turn')
     const team1TurnTurnNode = document.querySelector('#team1-turn-turn')
-    const halfNode = document.querySelector('#half')
+    const halfNodes = [...document.querySelectorAll('#half')]
     const pauseTurnContainerNode = document.querySelector('#pause-turn-container')
-    const team1NameNode = document.querySelector('#team1-name')
-    const team1LogoNode = document.querySelector('#team1-logo')
+    const team1NameNodes = [...document.querySelectorAll('#team1-name')]
+    const team1LogoNodes = [...document.querySelectorAll('#team1-logo')]
     const team1ScoreNameNode = document.querySelector('#team1-score-name')
     const team1ScoreInputNode = document.querySelector('#team1-score-input')
-    const team2NameNode = document.querySelector('#team2-name')
-    const team2LogoNode = document.querySelector('#team2-logo')
+    const team2NameNodes = [...document.querySelectorAll('#team2-name')]
+    const team2LogoNodes = [...document.querySelectorAll('#team2-logo')]
     const team2ScoreNameNode = document.querySelector('#team2-score-name')
     const team2ScoreInputNode = document.querySelector('#team2-score-input')
     const team1TurnTimeNode = document.querySelector('#team1-turn-time')
     const team2TurnTimeNode = document.querySelector('#team2-turn-time')
-    const team1ScoreboardNode = document.querySelector("#team1-scoreboard")
-    const team2ScoreboardNode = document.querySelector("#team2-scoreboard")
+    const team1ScoreboardNodes = [...document.querySelectorAll("#team1-scoreboard")]
+    const team2ScoreboardNodes = [...document.querySelectorAll("#team2-scoreboard")]
     const team1TurnNode = document.querySelector('#team1-turn')
     const team2TurnNode = document.querySelector('#team2-turn')
     const delayContainerNode = document.querySelector('#delay-container')
+    const endgameTeam1Node = document.querySelector('#endgame-team1')
+    const endgameTeam2Node = document.querySelector('#endgame-team2')
+    const endgameStateNode = document.querySelector('#endgame-state')
+    const endgameOverlayNode = document.querySelector('#endgame-overlay')
 
     const pages = [
       document.querySelector('#page1'),
@@ -548,10 +653,12 @@
       team1: {
         turn: 0,
         elapsedTime: 0,
+        score: 0
       },
       team2: {
         turn: 0,
-        elapsedTime: 0
+        elapsedTime: 0,
+        score: 0
       },
       isTeam1turn: false,
       isSecondPart: false
@@ -658,16 +765,29 @@
 
     function finishedHalf() {
       if (!gameState.isSecondPart) {
-        halfNode.innerHTML = 'Segunda Parte'
+        halfNodes.forEach(a => a.innerHTML = 'Segunda Parte')
         gameState.isSecondPart = true
       } else {
-        halfNode.innerHTML = '¡Fin del partido!'
+        halfNodes.forEach(a => a.innerHTML = '¡Fin del partido!')
         finishGame()
       }
     }
 
     function finishGame() {
       pauseClock()
+      endgameOverlayNode.removeAttribute('hidden')
+      if (gameState.team1.score > gameState.team2.score) {
+        endgameStateNode.innerHTML = 'Ganador'
+        endgameTeam1Node.removeAttribute('hidden')
+      } else if (gameState.team1.score < gameState.team2.score) {
+        endgameStateNode.innerHTML = 'Ganador'
+        endgameTeam2Node.removeAttribute('hidden')
+      } else {
+        endgameStateNode.innerHTML = 'Empate'
+        endgameTeam1Node.removeAttribute('hidden')
+        endgameTeam2Node.removeAttribute('hidden')
+      }
+      startConfetti()
     }
 
     function initClock(params) {
@@ -682,16 +802,16 @@
 
     function initTeam1(id) {
       const team = teams.find(a => a.id === Number(id))
-      team1LogoNode.src = team.logo
-      team1NameNode.innerHTML = team.name
+      team1LogoNodes.forEach((a) => a.src = team.logo)
+      team1NameNodes.forEach((a) => a.innerHTML = team.name)
       team1ScoreNameNode.innerHTML = team.name
       team1ScoreInputNode.value = '0'
     }
 
     function initTeam2(id) {
       const team = teams.find(a => a.id === Number(id))
-      team2LogoNode.src = team.logo
-      team2NameNode.innerHTML = team.name
+      team2LogoNodes.forEach((a) => a.src = team.logo)
+      team2NameNodes.forEach((a) => a.innerHTML = team.name)
       team2ScoreNameNode.innerHTML = team.name
       team2ScoreInputNode.value = '0'
     }
@@ -713,8 +833,10 @@
     }
 
     function setTouchdowns() {
-      team1ScoreboardNode.innerHTML = team1ScoreInputNode.value
-      team2ScoreboardNode.innerHTML = team2ScoreInputNode.value
+      gameState.team1.score = team1ScoreInputNode.value
+      gameState.team2.score = team2ScoreInputNode.value
+      team1ScoreboardNodes.forEach((a) => a.innerHTML = team1ScoreInputNode.value)
+      team2ScoreboardNodes.forEach((a) => a.innerHTML = team2ScoreInputNode.value)
     }
 
     function activateTeam1() {
@@ -853,6 +975,8 @@
     });
   } catch {}
 </script>
+
+<script src="confetti.js"></script>
 
 </body>
 </html>
