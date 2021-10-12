@@ -408,7 +408,7 @@
       </div>
       <div class="team-turn-turn">Turno: <span class="team-turn-number" id="team2-turn-turn">0</span></div>
     </button>
-    <div class="pause-turn-container" id="pause-turn-container" hidden>
+    <div class="pause-turn-container" id="pause-turn-container">
       <button class="pause-turn" onclick="showPage3()">Pausa</button>
     </div>
   </div>
@@ -557,6 +557,7 @@
       isSecondPart: false
     }
     let clock;
+    let wakeLock = null;
 
     // functions
 
@@ -565,7 +566,7 @@
       const params = Object.fromEntries(urlSearchParams.entries());
       gameConfig = params;
       gameConfig.time = Number(params.time) + 1; // para que empiece en el minuto exacto
-      gameConfig.delay = 2;
+      gameConfig.delay = gameConfig.delay ?? 2;
 
       if (params?.team1 !== null && params?.team1 !== undefined) {
         showPage2()
@@ -603,12 +604,15 @@
     }
 
     function keepGoing() {
+      if (gameState.hasStarted) {
+        startClock()
+      }
       setTouchdowns()
-      startClock()
       pages[2].setAttribute('hidden', true)
     }
 
     function turnForTeam1() {
+      requestWakeLock()
       if (!gameState.hasStarted || !gameState.isTeam1turn) {
         if (!gameState.hasStarted) {
           gameState.hasStarted = true
@@ -630,6 +634,7 @@
       }
     }
     function turnForTeam2() {
+      requestWakeLock()
       if (!gameState.hasStarted || gameState.isTeam1turn) {
         if (!gameState.hasStarted) {
           gameState.hasStarted = true
@@ -740,6 +745,7 @@
     }
 
     function goFullscreen() {
+      requestWakeLock()
       document.body.requestFullscreen()
       .then(function() {
         // element has entered fullscreen mode successfully
@@ -748,6 +754,22 @@
         // element could not enter fullscreen mode
       });
     }
+
+    // Function that attempts to request a wake lock.
+    async function requestWakeLock() {
+      if (!wakeLock) {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => {
+            wakeLock = null
+            console.log('Wake Lock was released');
+          });
+          console.log('Wake Lock is active');
+        } catch (err) {
+          console.error(`${err.name}, ${err.message}`);
+        }
+      }
+    };
 
     // clock
 
