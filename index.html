@@ -94,11 +94,20 @@
     }
 
     .team-turn.activePlayer {
-      border: solid 30px red;
+      border-bottom: solid 30px red;
+      border-top: solid 30px red;
     }
 
     .team-turn.notActivePlayer {
       filter: blur(5px);
+    }
+
+    .team1-turn.activePlayer {
+      border-right: solid 30px red;
+    }
+
+    .team2-turn.activePlayer {
+      border-left: solid 30px red;
     }
 
     .pause-turn-container {
@@ -121,6 +130,9 @@
 
     .team-logo {
       position: absolute;
+      max-height: 100vh;
+      max-width: 100vw;
+      width: 100%;
     }
 
     .team1-turn .team-logo {
@@ -510,14 +522,14 @@
       </div>
     </div>
     <button class="team-turn team1-turn" id="team1-turn" onclick="turnForTeam1()">
-      <img src="" id="team1-logo" class="team-logo" alt="" width="100%">
+      <img src="" id="team1-logo" class="team-logo" alt="">
       <div class="team-turn-content">
         <div class="team-turn-time" id="team1-turn-time">Empezar</div>
       </div>
       <div class="team-turn-turn">Turno: <span class="team-turn-number" id="team1-turn-turn">0</span></div>
     </button>
     <button class="team-turn team2-turn" id="team2-turn" onclick="turnForTeam2()">
-      <img src="" id="team2-logo" class="team-logo" alt="" width="100%">
+      <img src="" id="team2-logo" class="team-logo" alt="">
       <div class="team-turn-content">
         <div class="team-turn-time" id="team2-turn-time">Empezar</div>
       </div>
