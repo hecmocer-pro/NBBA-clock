@@ -721,6 +721,10 @@
     let wakeLock = null;
     let isInFullscreen = false;
 
+    const timeoutAudio = new Audio('Timeout.mp3');
+    const turnAudio = new Audio('Turn.mp3');
+    const turn2Audio = new Audio('Turn2.mp3');
+
     // functions
 
     function init() {
@@ -780,6 +784,8 @@
 
       requestWakeLock()
 
+      turnAudio.play()
+
       if (firstTurnInTheGame) {
         gameState.hasStarted = true
         startGame()
@@ -812,6 +818,8 @@
       const hasJustFinishedAHalf = gameState.team2.turn === Number(gameConfig.turns)
 
       requestWakeLock()
+
+      turnAudio.play()
 
       if (firstTurnInTheGame) {
         gameState.hasStarted = true
@@ -898,6 +906,7 @@
         pauseClock()
         setTurnover()
         navigator.vibrate(1000);
+        timeoutAudio.play()
       } else {
         const remainingTimeInString = `${getRawMinutes(remainingTime)}:${getRawSeconds(remainingTime)}`
         if (gameState.isTeam1turn) {
@@ -1038,6 +1047,7 @@
         delayContainerNode.removeAttribute('hidden')
         setTimeout(() => {
           delayContainerNode.setAttribute('hidden', true)
+          turn2Audio.play()
           resolve()
         }, Number(gameConfig.delay) * 1000)
       })
