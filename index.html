@@ -629,9 +629,6 @@
   </div>
 
   <script>
-
-    console.log('Version 1.00')
-
     // state
 
     const pleaseRotateNode = document.querySelector('#pleaseRotate')
@@ -793,19 +790,29 @@
     }
 
     function startTurn1() {
+      turnAudio.play()
       const hasJustFinishedAHalf = gameState.team1.turn === Number(gameConfig.turns)
       gameState.isTeam1turn = true
-      activateTeam1()
       startTurn('team1', hasJustFinishedAHalf)
       team1TurnTurnNode.innerHTML = gameState.team1.turn
+      if (hasJustFinishedAHalf) {
+        activateTeam2()
+      } else {
+        activateTeam1()
+      }
     }
 
     function startTurn2() {
+      turnAudio.play()
       const hasJustFinishedAHalf = gameState.team2.turn === Number(gameConfig.turns)
       gameState.isTeam1turn = false
-      activateTeam2()
       startTurn('team2', hasJustFinishedAHalf)
       team2TurnTurnNode.innerHTML = gameState.team2.turn
+      if (hasJustFinishedAHalf) {
+        activateTeam1()
+      } else {
+        activateTeam2()
+      }
     }
 
     function startTurn(newPlayer, hasJustFinishedAHalf) {
@@ -825,7 +832,6 @@
       const firstTurnInTheGame = !gameState.hasStarted
       const isAlreadyHisTurn = gameState.isTeam1turn
       requestWakeLock()
-      turnAudio.play()
 
       if (firstTurnInTheGame) {
         gameState.hasStarted = true
@@ -840,7 +846,6 @@
       const firstTurnInTheGame = !gameState.hasStarted
       const isAlreadyHisTurn = !gameState.isTeam1turn
       requestWakeLock()
-      turnAudio.play()
 
       if (firstTurnInTheGame) {
         gameState.hasStarted = true
@@ -857,9 +862,9 @@
       team1TurnTurnNode.innerHTML = gameState.team1.turn
       team2TurnTurnNode.innerHTML = gameState.team2.turn
       if (startingTeam === 'team1') {
-        team1TurnTimeNode.innerHTML = 'Comienza segunda parte'
-      } else {
         team2TurnTimeNode.innerHTML = 'Comienza segunda parte'
+      } else {
+        team1TurnTimeNode.innerHTML = 'Comienza segunda parte'
       }
 
       if (!gameState.isSecondPart) {
