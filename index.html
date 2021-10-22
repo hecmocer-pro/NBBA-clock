@@ -727,7 +727,8 @@
       },
       isTeam1turn: false,
       isSecondPart: false,
-      endedGame: false
+      endedGame: false,
+      playedTimeoutForThisTurn: false
     }
     let clock;
     let wakeLock = null;
@@ -808,6 +809,7 @@
     function startTurn(newPlayer, hasJustFinishedAHalf) {
       gameState[newPlayer].elapsedTime = 0
       gameState[newPlayer].turn += 1
+      gameState.playedTimeoutForThisTurn = false
 
       if (hasJustFinishedAHalf) {
         finishedHalf(newPlayer)
@@ -917,8 +919,11 @@
       if (remainingTime < 0 || gameState.endedGame) {
         pauseClock()
         setTurnover()
-        navigator.vibrate(1000);
-        timeoutAudio.play()
+        if (!gameState.playedTimeoutForThisTurn) {
+          gameState.playedTimeoutForThisTurn = true
+          navigator.vibrate(1000);
+          timeoutAudio.play()
+        }
       } else {
         const remainingTimeInString = `${getRawMinutes(remainingTime)}:${getRawSeconds(remainingTime)}`
         if (gameState.isTeam1turn) {
